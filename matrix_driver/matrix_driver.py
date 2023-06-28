@@ -1,6 +1,8 @@
 from rgbmatrix import RGBMatrix, RGBMatrixOptions
 from PIL import Image
+import np
 import time
+import cv2
 
 class Matrix:
     def __init__(self, dimensions):
@@ -26,7 +28,16 @@ class Matrix:
         self.matrix = RGBMatrix(options=options)
         self.off_screen_canvas = self.matrix.CreateFrameCanvas()
 
+        self.gamma_table = self._gen_gamma_table(2.8)
+
+    def _gen_gamma_table(self, gamma):
+        gamma_table = np.zeros(256, dtype=np.uint8)
+        for i in range(256):
+            gamma_table[i] = int(pow(i / 255.0, gamma) * 255.0 + 0.5)
+        return gamma_table
+
     def set_pixels(self, pixels):
+        pixels = cv2.LUT(pixels, self.gamma_table)
         self.off_screen_canvas.SetImage(Image.fromarray(pixels))
         self.matrix.SwapOnVSync(self.off_screen_canvas)
     
