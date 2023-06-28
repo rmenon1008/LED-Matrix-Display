@@ -22,10 +22,13 @@ class YtStreamer:
         with yt_dlp.YoutubeDL() as ydl:
             info = ydl.extract_info(yt_url, download=False, process=False)
             formats = info['formats']
-            
+
             for format in formats:
-                if format['height'] == desired_width:
-                    break
+                if 'height' in format:
+                    if format['height'] == desired_width:
+                        break
+                else:
+                    continue
             else:
                 raise ValueError("No format with desired width found")
 

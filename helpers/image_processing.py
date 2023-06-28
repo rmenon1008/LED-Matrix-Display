@@ -13,7 +13,7 @@ def alpha_blend(images, background=(0, 0, 0)):
         alpha_channel = np.expand_dims(alpha_channel, axis=2)
         working_image = working_image * (1 - alpha_channel) + stripped * alpha_channel
 
-    return working_image
+    return np.uint8(working_image)
 
 def contain(image, container_size, position="tr", padding=(0, 0, 0, 0), crop=True):
     # Padding is top, right, bottom, left

@@ -14,20 +14,33 @@ from helpers.image_processing import contain, center_crop, crop_percentages
 
 def tween(amount, func="ease_in"):
     amount = min(max(amount, 0), 1)
-    match func:
-        case "ease_in":
-            return amount**3
-        case "ease_in_fast":
-            return amount**4
-        case "ease_out":
-            return 1 - (1 - amount)**3
-        case "ease_in_out":
-            if amount < 0.5:
-                return 2 * amount**3
-            else:
-                return 1 - 2 * (1 - amount)**3
-        case _:
-            return amount
+    # match func:
+    #     case "ease_in":
+    #         return amount**3
+    #     case "ease_in_fast":
+    #         return amount**4
+    #     case "ease_out":
+    #         return 1 - (1 - amount)**3
+    #     case "ease_in_out":
+    #         if amount < 0.5:
+    #             return 2 * amount**3
+    #         else:
+    #             return 1 - 2 * (1 - amount)**3
+    #     case _:
+    #         return amount
+    if func == "ease_in":
+        return amount**3
+    elif func == "ease_in_fast":
+        return amount**4
+    elif func == "ease_out":
+        return 1 - (1-amount)**3
+    elif func == "ease_in_out":
+        if amount < 0.5:
+            return 2 * amount**3
+        else:
+            return 1 - 2 * (1-amount)**3
+    else:
+        return amount
 
 class Layer:
     def __init__(self, size):

@@ -4,7 +4,6 @@ import numpy as np
 import time
 import multiprocessing
 
-from matrix_emulator.matrix import Matrix
 from layers import BackgroundLayer, NotificationLayer, WidgetLayer
 from apps import Time, Weather, Calendar, YtStream, Setup
 from helpers.image_processing import alpha_blend
@@ -24,19 +23,31 @@ class Renderer:
     def create_apps(self, app_dict):
         apps = []
         for app_name, options in app_dict.items():
-            match app_name:
-                case "time":
-                    apps.append(Time(self.update_queues, **options))
-                case "weather":
-                    apps.append(Weather(self.update_queues, **options))
-                case "calendar":
-                    apps.append(Calendar(self.update_queues, **options))
-                case "yt_stream":
-                    apps.append(YtStream(self.update_queues, **options))
-                case "setup":
-                    apps.append(Setup(self.update_queues, **options))
-                case _:
-                    raise ValueError(f"Invalid app: {app_name}")
+            # match app_name:
+            #     case "time":
+            #         apps.append(Time(self.update_queues, **options))
+            #     case "weather":
+            #         apps.append(Weather(self.update_queues, **options))
+            #     case "calendar":
+            #         apps.append(Calendar(self.update_queues, **options))
+            #     case "yt_stream":
+            #         apps.append(YtStream(self.update_queues, **options))
+            #     case "setup":
+            #         apps.append(Setup(self.update_queues, **options))
+            #     case _:
+            #         raise ValueError(f"Invalid app: {app_name}")
+            if app_name == "time":
+                apps.append(Time(self.update_queues, **options))
+            elif app_name == "weather":
+                apps.append(Weather(self.update_queues, **options))
+            elif app_name == "calendar":
+                apps.append(Calendar(self.update_queues, **options))
+            elif app_name == "yt_stream":
+                apps.append(YtStream(self.update_queues, **options))
+            elif app_name == "setup":
+                apps.append(Setup(self.update_queues, **options))
+            else:
+                raise ValueError(f"Invalid app: {app_name}")
         return apps
 
     def update_apps(self, app_dict):
