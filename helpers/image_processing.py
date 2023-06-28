@@ -1,5 +1,6 @@
-import cv2
 import numpy as np
+
+print("Loading image_processing.py")
 
 def alpha_blend(images, background=(0, 0, 0)):
     bg_color = np.array(background, dtype=np.uint8)
@@ -14,7 +15,7 @@ def alpha_blend(images, background=(0, 0, 0)):
 
     return working_image
 
-def contain(image, container_size, position="tr", padding=(0, 0, 0, 0)):
+def contain(image, container_size, position="tr", padding=(0, 0, 0, 0), crop=True):
     # Padding is top, right, bottom, left
 
     # Use the position to determine the x and y coordinates of the image
@@ -33,12 +34,18 @@ def contain(image, container_size, position="tr", padding=(0, 0, 0, 0)):
     elif position[1] == "r":
         x = container_size[0] - len(image[0]) - padding[1]
 
-    # Make sure the image is not larger than the container
-    assert len(image) <= container_size[1]
-    assert len(image[0]) <= container_size[0]
+    # Crop the image if it is too large
+    if crop:
+        if len(image) > container_size[1]:
+            image = image[:container_size[1]]
+        if len(image[0]) > container_size[0]:
+            image = image[:, :container_size[0]]
 
     # Pad the image
-    padded = np.pad(image, ((y, container_size[1] - len(image) - y), (x, container_size[0] - len(image[0]) - x), (0, 0)), constant_values=0)
+    try:
+        padded = np.pad(image, ((y, container_size[1] - len(image) - y), (x, container_size[0] - len(image[0]) - x), (0, 0)), constant_values=0)
+    except ValueError:
+        return image
     return padded
 
         

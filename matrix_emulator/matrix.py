@@ -1,13 +1,12 @@
 import eel
-import os
 import numpy as np
 
 class Matrix:
-    def __init__(self, size, pitch=12, diameter=7):
+    def __init__(self, size, pitch=12.7, diameter=7.7):
         self.width = size[0]
         self.height = size[1]
         size = (self.width * pitch + diameter/2, self.height * pitch + 27 + diameter/2)
-        eel.init('web')
+        eel.init('matrix_emulator/web')
         eel.start('index.html', size=size, block=False)
         eel.sleep(2)
         eel.init_matrix(self.width, self.height, pitch, diameter)

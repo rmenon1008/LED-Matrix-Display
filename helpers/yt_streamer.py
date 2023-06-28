@@ -1,10 +1,6 @@
-from matrix import Matrix
-import random
-import eel
 import cv2
 import yt_dlp
 import time
-import json
 import threading
 import queue
 
@@ -15,7 +11,12 @@ class YtStreamer:
         self._set_up(yt_url, desired_width)
 
         self.unexpected_end = False
+        self.killed = False
         pass
+
+    def kill(self):
+        self.killed = True
+        self.cap.release()
 
     def _set_up(self, yt_url, desired_width):
         with yt_dlp.YoutubeDL() as ydl:

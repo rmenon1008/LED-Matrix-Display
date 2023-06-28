@@ -1,0 +1,23 @@
+{
+    "first_run": true,
+    "ssid": null,
+    "password": null,
+    "hostname": "dotboard",
+    "apps": {
+        "time": {},
+        "weather": {},
+        "yt_stream": {
+            "url": "https://www.youtube.com/watch?v=jfKfPfyJRdk"
+        }
+    },
+    "oauth_credentials": {
+        "token": "ya29.a0AWY7CkmxTmO2CqSAEzeeLl63Oc51cjD_nFY5t_9qaXSyDLCVFFL9_KBSIC0jSkkq-zI7LrC00vgFy4zmal3M8dHDxqPA1b-2Yzobunxzk-eK3j6G65sk5c-yNcS2F_P3q8wisX85SARBMaOLYgF9Ib7Sxr8xaCgYKAQgSARASFQG1tDrpBIbhmqsTq_5UzabjAHV3ug0163",
+        "refresh_token": "1//06iEsoeEKDokzCgYIARAAGAYSNwF-L9Ir38r0OmdfU3extbMxRMXOraE7vCznz47Jdmuk5-mm0RM7ExBpxESEL_3P6aZFLlIB79g",
+        "token_uri": "https://oauth2.googleapis.com/token",
+        "client_id": "96003940279-potu3blh6b6o4dppm16cn25le94hbmdp.apps.googleusercontent.com",
+        "client_secret": "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",
+        "scopes": [
+            "https://www.googleapis.com/auth/calendar.readonly"
+        ]
+    }
+}
