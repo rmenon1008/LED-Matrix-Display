@@ -1,7 +1,6 @@
 from rgbmatrix import RGBMatrix, RGBMatrixOptions
 from PIL import Image
-import np
-import time
+import numpy as np
 import cv2
 
 class Matrix:
