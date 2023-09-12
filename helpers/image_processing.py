@@ -1,4 +1,5 @@
 import numpy as np
+import cv2
 
 print("Loading image_processing.py")
 
@@ -93,3 +94,9 @@ def ascii_print(array):
             else:
                 print(" ", end="")
         print()
+
+def adjust_brightness(image, value):
+    hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+    hsv[:,:,2] = cv2.add(value, hsv[:,:,2])
+    image = cv2.cvtColor(hsv, cv2.COLOR_HSV2BGR)
+    return image

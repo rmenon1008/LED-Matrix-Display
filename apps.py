@@ -40,7 +40,7 @@ class App:
 
 
 color = (255, 255, 255, 255)
-outline = (0, 0, 0, 190)
+outline = (0, 0, 0, 170)
 
 class Time(App):
     def __init__(self, update_queues, time_format="%-I:%M"):
@@ -149,10 +149,11 @@ class Weather(App):
             time.sleep(5 * 60)
 
 class YtStream(App):
-    def __init__(self, update_queues, url, desired_quality=240, crop=None, size=(96, 48)):
+    def __init__(self, update_queues, url, desired_quality=360, crop=None, size=(96, 48)):
         super().__init__(update_queues)
         self.url = url
         self.desired_quality = desired_quality
+        print(f"Starting stream for {url} at {desired_quality}p")
         self.crop = crop
         self.size = size
         self._start()
@@ -161,6 +162,7 @@ class YtStream(App):
         self.streamer = YtStreamer(self.url, self.desired_quality)
         while True:
             frame = self.streamer.next_frame()
+            # frame = imp.adjust_brightness(frame, -50)
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGBA)
             if self.crop:
                 frame = imp.crop_percentages(frame, self.crop)

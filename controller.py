@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 from renderer import Renderer
 # from matrix_emulator.matrix import Matrix
 from matrix_driver.matrix_driver import Matrix
@@ -6,6 +8,7 @@ import threading
 import json
 # import matplotlib.pyplot as plt
 import os
+import numpy as np
 # import flask
 
 # from google.auth.transport.requests import Request
@@ -107,8 +110,8 @@ class Controller():
 
     def _render_loop(self):
         while True:
-            time.sleep(0.005)
             self.matrix.set_pixels(self.renderer.get_frame())
+            # self.matrix.set_pixels(np.array([], np.uint8))
 
     def update_apps(self, app_dict):
         self.renderer.update_apps(app_dict)

@@ -7,7 +7,8 @@
         "time": {},
         "weather": {},
         "yt_stream":{
-            "url":"https://www.youtube.com/watch?v=sJU17dB-raw"
+            "url":"https://www.youtube.com/watch?v=60xdyUIlPGQ",
+            "crop": [0, 0, 72, 80]
         }
     }
 }

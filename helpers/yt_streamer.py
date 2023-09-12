@@ -42,13 +42,14 @@ class YtStreamer:
             self.cap = cv2.VideoCapture(self.stream_url, cv2.CAP_FFMPEG)
             self.thread = threading.Thread(target=self._read_frames)
             self.thread.start()
+            print("Created frame queue")
 
     def _read_frames(self):
         while True:
             try:
                 ret, frame = self.cap.read()
                 if not ret:
-                    print("Video stream ended")
+                    print("Video stream ended unexpectedly")
                     self.unexpected_end = True
                     break
                 self.frame_queue.put(frame)
@@ -59,9 +60,10 @@ class YtStreamer:
     def next_frame(self):
         # Check if we need to restart the stream
         if self.unexpected_end:
+            print("Restarting stream")
             while not self.frame_queue.empty():
                 try:
-                    print("Restarting stream")
+                    print("Attempting to set up again")
                     self._set_up(self.yt_url, self.desired_width)
                     self.unexpected_end = False
                 except Exception as e:
