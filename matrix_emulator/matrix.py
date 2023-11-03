@@ -31,7 +31,6 @@ class Matrix:
         pass
 
     def set_pixels(self, pixels):
-        pass
         pixels = cv2.cvtColor(pixels, cv2.COLOR_RGB2BGR)
         cv2.namedWindow("Matrix Emulator", cv2.WINDOW_NORMAL)
         cv2.resizeWindow("Matrix Emulator", 750, 375)

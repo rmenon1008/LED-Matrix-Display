@@ -1,27 +1,17 @@
 import cv2
 import yt_dlp
 import time
-import threading
+import multiprocessing as mp
 import queue
-from .image_processing import center_crop as center_crop_image
+from .image_processing import center_crop as center_crop_img, crop_percentages
 
 class YtStreamer:
-    def __init__(self, yt_url, desired_width, auto_restart=True, auto_start=True):
+    def __init__(self, yt_url, desired_width, size=None, crop=None):
         self.yt_url = yt_url
         self.desired_width = desired_width
-        self.auto_restart = auto_restart
-        self._set_up(yt_url, desired_width)
-
-        self.unexpected_end = False
-        self.killed = False
-        self.closed = False
-        pass
-
-    def kill(self):
-        self.killed = True
-        self.cap.release()
-
-    def _set_up(self, yt_url, desired_width):
+        self.size = size
+        self.crop = crop
+        
         with yt_dlp.YoutubeDL() as ydl:
             info = ydl.extract_info(yt_url, download=False, process=False)
             formats = info['formats']
@@ -41,42 +31,49 @@ class YtStreamer:
             self.start_time = time.perf_counter()
             self.frames_displayed = 0
 
-            self.frame_queue = queue.Queue(maxsize=3*self.fps)
-            self.cap = cv2.VideoCapture(self.stream_url, cv2.CAP_FFMPEG)
-            self.thread = threading.Thread(target=self._read_frames)
+            self.frame_queue = mp.Queue(maxsize=int(3*self.fps))
+            self.thread = mp.Process(target=self._read_frames)
             self.thread.start()
             print("Created frame queue")
 
+    def kill(self):
+        self.killed = True
+        self.thread.terminate()
+        self.thread.join()
+        self.closed = True
+
     def _read_frames(self):
         while True:
-            try:
-                ret, frame = self.cap.read()
-                if not ret:
-                    print("Video stream ended unexpectedly")
-                    self.unexpected_end = True
-                    self.cap.release()
-                    self.closed = True
+            print("Setting up stream")
+            cap = cv2.VideoCapture(self.stream_url, cv2.CAP_FFMPEG)
+            while True:
+                try:
+                    ret, frame = cap.read()
+                    if not ret:
+                        print("Video stream ended unexpectedly")
+                        cap.release()
+                        break
+                    if self.crop is not None:
+                        frame = crop_percentages(frame, self.crop)
+                    if self.size is not None:
+                        frame = center_crop_img(frame, self.size[0] / self.size[1])
+                        frame = cv2.resize(frame, self.size)
+                    self.frame_queue.put(frame)
+                except Exception as e:
+                    cap.release()
                     break
-                self.frame_queue.put(frame)
-            except Exception as e:
-                self.unexpected_end = True
-                self.cap.release()
-                self.closed = True
-                break
+                
+                time.sleep(1/60)
+
+            # Wait 5 seconds before trying to reconnect
+            time.sleep(5)
+
+            self.start_time = time.perf_counter()
+            self.frames_displayed = 0
+            while not self.frame_queue.empty():
+                self.frame_queue.get()
 
     def next_frame(self):
-        # Check if we need to restart the stream
-        if self.unexpected_end and self.auto_restart:
-            print("Restarting stream")
-            while not self.frame_queue.empty():
-                try:
-                    print("Attempting to set up again")
-                    self._set_up(self.yt_url, self.desired_width)
-                    self.unexpected_end = False
-                except Exception as e:
-                    print(e)
-                    time.sleep(5)
-
         # If we're behind schedule, skip frames
         while self.frames_displayed < int((time.perf_counter() - self.start_time) * self.fps):
             self.frame_queue.get()
@@ -85,7 +82,9 @@ class YtStreamer:
         while self.frames_displayed >= int((time.perf_counter() - self.start_time) * self.fps):
             pass
         self.frames_displayed += 1
-        return self.frame_queue.get()
+
+        frame = self.frame_queue.get()
+        return frame
 
 
 class YtFrameDownloader:
@@ -118,7 +117,7 @@ class YtFrameDownloader:
             if not ret:
                 break
             if center_crop:
-                frame = center_crop_image(frame, size[0] / size[1])
+                frame = center_crop_img(frame, size[0] / size[1])
             if size is not None:
                 frame = cv2.resize(frame, size)
             if max_duration is not None and len(frames) > max_duration * 30:

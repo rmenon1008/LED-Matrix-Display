@@ -30,16 +30,25 @@ class Controller():
         self.last_frame_times = []
     
     def _render_loop(self):
-        while True:
-            self.last_frame_times.append(time.time())
-            self.last_frame_times = self.last_frame_times[-10:]
-            self.matrix.set_pixels(self.renderer.get_frame())
-            # Calculate FPS using the last 20 frames
-            times = [self.last_frame_times[i+1] - self.last_frame_times[i] for i in range(len(self.last_frame_times)-1)]
-            fps = 1 / (sum(times) / len(times)) if len(times) > 0 else 0
-            print(f"FPS: {round(fps, 2)}", end="\r")
+        self.last_frame_times.append(time.perf_counter())
+        self.last_frame_times = self.last_frame_times[-10:]
+        self.matrix.set_pixels(self.renderer.get_frame())
+        # Calculate FPS using the last 20 frames
+        times = [self.last_frame_times[i+1] - self.last_frame_times[i] for i in range(len(self.last_frame_times)-1)]
+        fps = 1 / (sum(times) / len(times)) if len(times) > 0 else 0
+        print(f"FPS: {round(fps, 2)}", end="\r")
 
-if __name__ == "__main__":
+def run_profile(t=1):
+    controller = Controller()
+    start_time = time.time()
+    while time.time() - start_time < t:
+        controller._render_loop()
+
+def run():
     controller = Controller()
     while True:
         controller._render_loop()
+
+if __name__ == "__main__":
+    run()
+    

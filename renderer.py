@@ -1,5 +1,6 @@
 from helpers.image_processing import alpha_blend
 from apps import Time, Weather, YtStream, AstronautIo
+import numpy as np
 import time
 
 class Renderer:
@@ -9,8 +10,8 @@ class Renderer:
         self.apps = []
         self.setup_apps(config.get("apps", []))
 
-        self.foreground_color = None
-        self.background_color = None
+        self.foreground_color = np.array([255, 255, 255])
+        self.background_color = np.array([0, 0, 0])
         self.last_color_update = 0
 
         print(self.apps)
@@ -38,12 +39,15 @@ class Renderer:
         elif name == "astronaut_io":
             return AstronautIo(**options)
         else:
+            print(f"Invalid app: {name}")
             return None
         
     def update_colors(self):
         ALPHA = 0.15
         self.last_color_update = time.time()
         fg, bg = self.apps[0].get_colors()
+        if fg is None or bg is None:
+            return
         self.foreground_color = fg * ALPHA + self.foreground_color * (1-ALPHA) if self.foreground_color is not None else fg
         self.background_color = bg * ALPHA + self.background_color * (1-ALPHA) if self.background_color is not None else bg
     

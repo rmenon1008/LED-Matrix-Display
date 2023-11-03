@@ -44,10 +44,8 @@ class App:
         pass
 
     def get_frame(self):
-        try:
-            self.frame = self.frame_queue.get_nowait()
-        except mp.queues.Empty:
-            pass
+        if not self.frame_queue.empty():
+            self.frame = self.frame_queue.get()
         return self.frame
 
 class Time(App):
@@ -189,13 +187,9 @@ class YtStream(App):
         return imp.get_fg_bg_colors(self.frame)
 
     def _run(self):
-        self.streamer = YtStreamer(self.url, self.desired_quality)
+        self.streamer = YtStreamer(self.url, self.desired_quality, crop=self.crop, size=self.size)
         while True:
             frame = self.streamer.next_frame()
-            if self.crop:
-                frame = imp.crop_percentages(frame, self.crop)
-            frame = imp.center_crop(frame, self.size[0]/self.size[1])
-            frame = cv2.resize(frame, self.size, interpolation=cv2.INTER_AREA)
             if self.image_adjustments:
                 frame = imp.image_adjustment(frame, **self.image_adjustments)
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGBA)
@@ -203,34 +197,45 @@ class YtStream(App):
                 self.frame_queue.get()
             self.frame_queue.put_nowait(frame)
 
+            time.sleep(1/60)
+
 def _run_ws_download(video_queue, desired_quality, size, max_duration):
     def on_message(ws, message):
         try:
             obj = json.loads(message[message.index("["):])
             video_id = obj[1]["video"]["id"]
-            ws.send("2")
-            if video_queue.full():
-                print("Video queue full, skipping video")
-                return
-            yt = YtFrameDownloader(video_id, desired_quality)
-            frames = yt.get_frames(size=size, max_duration=max_duration, cvt_color=True, center_crop=True)
-            video_queue.put(frames)
         except:
-            pass
+            return
+        
+        ws.send("2")
+        if video_queue.full():
+            print("Video queue full, skipping video")
+            return
+        
+        try:
+            yt = YtFrameDownloader(video_id, desired_quality)
+        except:
+            return
+        frames = yt.get_frames(size=size, max_duration=max_duration, cvt_color=True, center_crop=True)
+        video_queue.put(frames)
 
     def on_error(ws, error):
         print(error)
 
     def on_close(ws, close_status_code, close_msg):
         print("Astronaut.io connection closed")
+        ws.close()
 
-    ws = websocket.WebSocketApp(
-        "ws://astronaut.io/socket.io/?EIO=3&transport=websocket",
-        on_message = on_message,
-        on_error = on_error,
-        on_close = on_close
-    )
-    ws.run_forever()
+    while True:
+        ws = websocket.WebSocketApp(
+            "ws://astronaut.io/socket.io/?EIO=3&transport=websocket",
+            on_message = on_message,
+            on_error = on_error,
+            on_close = on_close
+        )
+        ws.run_forever()
+        print("Stream ended, reconnecting")
+        time.sleep(5)
 
 class AstronautIo(App):
     def __init__(
@@ -244,12 +249,15 @@ class AstronautIo(App):
         self.size = size
         self.desired_quality = desired_quality
         self.max_duration = max_duration_sec
-        self.video_queue = mp.Queue(maxsize=1)
+        self.video_queue = mp.Queue(maxsize=2)
         self.start_time = None
         self.ws_process = mp.Process(target=_run_ws_download, args=(self.video_queue, self.desired_quality, self.size, self.max_duration))
         self.current_video = None
         self._start()
         self.ws_process.start()
+
+    def get_colors(self):
+        return imp.get_fg_bg_colors(self.frame)
 
     def _run(self):
         while self.video_queue.empty():
