@@ -14,5 +14,6 @@ class Matrix:
         data = pixels.tobytes()
         self.spi.xfer3(data)
 
-    def clear(self):
-        pass
+    def __del__(self):
+        self.spi.close()
+

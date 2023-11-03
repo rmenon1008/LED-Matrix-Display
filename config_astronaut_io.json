@@ -1,0 +1,28 @@
+{
+    "dimensions": [96, 48],
+    "fps_cap": 70,
+    "foreground_opacity": 255,
+    "background_opacity": 128,
+    "apps": [
+        {
+            "name": "astronaut_io"
+        },
+        {
+            "name": "weather",
+            "options": {
+                "location_lat_lon": [47.666345, -122.318410],
+                "use_celsius": false,
+                "show_icon": true,
+                "small_font": true
+            }
+        },
+        {
+            "name": "time",
+            "options": {
+                "use_12_hr": true,
+                "small_font": true,
+                "padding": [1, 1, 1, 1]
+            }
+        }
+    ]
+}

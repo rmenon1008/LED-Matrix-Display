@@ -1,8 +1,8 @@
 #!/usr/bin/python3
 
 from renderer import Renderer
-from matrix_emulator.matrix import Matrix
-# from matrix_driver.matrix_driver import Matrix
+# from matrix_emulator.matrix import Matrix
+from matrix_driver.matrix_driver import Matrix
 
 import time
 import json
