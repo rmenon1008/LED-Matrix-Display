@@ -1,8 +1,6 @@
 import numpy as np
 import cv2
 
-print("Loading text.py")
-
 import helpers.image_processing as imp
 from fonts.fonts import SIX_TALL, ICONS
 
@@ -56,7 +54,7 @@ def render_string(
         outline_color (tuple, optional): The color to use for the outline of all characters. Defaults to None.
         container_size (tuple, optional): The size of the container to render the string in. Defaults to None.
         container_pos (str, optional): The position inside the container to render the string in. Defaults to "tl" (top, left).
-        container_padding (tuple, optional): The padding of the container to render the string in. Defaults to (0, 0, 0, 0).
+        container_padding (tuple, optional): The padding of the container to render the string in. Defaults to (0, 0, 0, 0) (top, right, bottom, left).
 
     Returns:
         np.array: The rendered string.
