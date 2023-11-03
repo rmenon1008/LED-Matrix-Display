@@ -3,11 +3,16 @@
 from renderer import Renderer
 # from matrix_emulator.matrix import Matrix
 from matrix_driver.matrix_driver import Matrix
+import numpy as np
+import cv2
 
 import time
 import json
 
-import cProfile
+# import cProfile
+
+BLANK_FRAME = np.ones((48, 96, 3), dtype=np.uint8) * 255
+STARTUP_FRAME = cv2.cvtColor(cv2.imread("/home/dietpi/LED-Matrix-Display/startup.png"), cv2.COLOR_BGR2RGB)
 
 class Controller():
     def __init__(self):
@@ -28,6 +33,13 @@ class Controller():
         self.matrix = Matrix(self.config.get("dimensions", None))
         self.renderer = Renderer(self.config)
         self.last_frame_times = []
+
+        self.matrix.set_pixels(BLANK_FRAME)
+        self.matrix.reset()
+        time.sleep(1)
+
+        self.matrix.set_pixels(STARTUP_FRAME)
+        time.sleep(4)
     
     def _render_loop(self):
         self.last_frame_times.append(time.perf_counter())
